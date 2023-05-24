@@ -26,13 +26,37 @@ let persons = [
     }
 ]
 
+const generateId = () => {
+    const maxId = persons.length > 0
+        ? Math.max(...persons.map((person) => person.id))
+        : 0;
+    return maxId + 1;
+}
 
 app.post('/api/persons', (request, response) => {
-    const person = request.body
-    person.id = Math.floor(Math.random() * 1000000) + 1;
+    const body = request.body;
 
-    persons = persons.concat(person)
-    response.json(person)
+    if (!body.name || !body.number) {
+        return response.status(400).json({
+            error: 'Name or number is missing'
+        });
+    };
+
+    const duplicatePerson = persons.find((person) => person.name === body.name);
+    if (duplicatePerson) {
+        return response.status(400).json({
+            error: 'Name must be unique'
+        });
+    };
+
+    const person = {
+        id: generateId(),
+        name: body.name,
+        number: body.number,
+    };
+
+    persons = persons.concat(person);
+    response.json(person);
 })
 
 app.get('/', (request, response) => {
