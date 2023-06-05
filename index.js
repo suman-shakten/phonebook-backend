@@ -85,6 +85,18 @@ app.put('/api/persons/:id', (request, response, next) => {
         .catch(error => next(error))
 });
 
+app.get('/api/persons/:id', (request, response, next) => {
+    Person.findById(request.params.id)
+        .then((person) => {
+            if (person) {
+                response.json(person);
+            } else {
+                response.status(404).end();
+            }
+        })
+        .catch((error) => next(error))
+});
+
 app.use(unknownEndpoint);
 app.use(errorHandler);
 
