@@ -1,3 +1,6 @@
 node_modules
 .env
 copy.js
+mongo.js
+delete_person.rest
+post_person.rest
