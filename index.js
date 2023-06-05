@@ -1,7 +1,12 @@
-require('dotenv').config();
-
 const express = require('express');
 const app = express();
+const cors = require('cors');
+require('dotenv').config();
+
+const Person = require('./models/person');
+
+
+app.use(cors());
 app.use(express.json());
 app.use(express.static('build'));
 
@@ -11,11 +16,7 @@ morgan.token('body', request => {
 });
 app.use(morgan(':method :url :status :response-time ms :body'));
 
-const cors = require('cors');
-app.use(cors());
 
-const mongoose = require('mongoose');
-const Person = require('./models/person');
 
 app.get('/api/persons', (request, response) => {
     Person.find({}).then((persons) => {
@@ -41,6 +42,32 @@ app.post('/api/persons', (request, response) => {
         response.json(savedPerson);
     });
 });
+
+app.get('/api/persons/:id', (request, response) => {
+    Person.findById(request.params.id)
+        .then((person) => {
+            if (person) {
+                response.json(person);
+            } else {
+                response.status(404).end();
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+            response.status(400).send({ error: 'malformed id' });
+        })
+});
+
+app.delete('/api/persons/:id', (request, response) => {
+    Person.findByIdAndDelete(request.params.id)
+        .then((result) => {
+            response.status(204).end()
+        })
+        .catch((error) => {
+            response.status(404).end()
+        })
+});
+
 
 const PORT = process.env.PORT;
 
